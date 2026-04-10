@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Quản lý đơn hàng</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary-green:#2e7d32;
+--dark-green:#1b4332;
+--border:#e5e7eb;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI';
+}
+
+body{
+display:flex;
+background:#f4f6f8;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+height:100vh;
+background:var(--dark-green);
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+font-size:26px;
+}
+
+.sidebar ul{
+list-style:none;
+}
+
+.sidebar ul li{
+margin:15px 0;
+}
+
+.sidebar ul li a{
+display:flex;
+align-items:center;
+gap:10px;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar ul li a:hover{
+background:rgba(255,255,255,0.15);
+}
+
+.logout{
+margin-top:30px;
+border-top:1px solid rgba(255,255,255,0.2);
+padding-top:15px;
+}
+
+.logout a{
+display:flex;
+align-items:center;
+gap:10px;
+color:#ffb4b4;
+text-decoration:none;
+padding:10px;
+}
+
+/* MAIN */
+
+.main{
+margin-left:240px;
+width:100%;
+}
+
+.admin-header{
+height:70px;
+background:white;
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+padding:0 30px;
+}
+
+.admin-header h1{
+font-size:32px;
+font-weight:700;
+}
+
+.content{
+padding:30px;
+}
+
+.table-box{
+background:white;
+border-radius:10px;
+border:1px solid var(--border);
+padding:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid var(--border);
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+/* PAYMENT */
+
+.cash{
+color:#16a34a;
+font-weight:600;
+}
+
+.bank{
+color:#2563eb;
+font-weight:600;
+}
+
+/* STATUS */
+
+.status-select{
+padding:6px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+.action-btn{
+border:none;
+padding:6px 10px;
+border-radius:4px;
+cursor:pointer;
+}
+
+.delete{
+background:#ef4444;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h2>ADMIN</h2>
+
+<ul>
+<li><a th:href="@{/admin/dashboard}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+<li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
+<li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+<li><a th:href="@{/admin/user}"><i class="fas fa-users"></i> Khách hàng</a></li>
+<li><a th:href="@{/admin/vouchers}"><i class="fas fa-ticket"></i> Vouchers</a></li>
+<li><a th:href="@{/admin/product-discount}"><i class="fas fa-tags"></i> Giảm giá sản phẩm</a></li>
+<li><a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
+</ul>
+
+<div class="logout">
+<a th:href="@{/logout}">
+<i class="fas fa-right-from-bracket"></i> Đăng xuất
+</a>
+</div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="admin-header">
+<h1>Quản lý đơn hàng</h1>
+</div>
+
+<div class="content">
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>Mã đơn</th>
+<th>Khách hàng</th>
+<th>Tổng tiền</th>
+<th>Thanh toán</th>
+<th>Trạng thái</th>
+<th>Hành động</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr th:each="order : ${orders}">
+
+<td th:text="${order.id}"></td>
+
+<td th:text="${order.customerName}"></td>
+
+   <td>
+    <span th:text="${#numbers.formatDecimal(order.total,0,'COMMA',0,'POINT')}"></span> đ
+</td>
+
+<td>
+
+<span th:if="${order.paymentMethod != null and order.paymentMethod.equals('CASH')}" class="cash">
+    Tiền mặt
+</span>
+
+<span th:if="${order.paymentMethod != null and order.paymentMethod.equals('BANK')}" class="bank">
+    Chuyển khoản
+</span>
+
+<span th:if="${order.paymentMethod == null or (!order.paymentMethod.equals('CASH') and !order.paymentMethod.equals('BANK'))}">
+    Khác
+</span>
+
+</td>
+
+<td>
+
+<form th:action="@{/admin/orders/update-status}" method="post">
+
+<input type="hidden" name="orderId"
+th:value="${order.id}">
+
+
+
+<select name="status" class="status-select" onchange="this.form.submit()">
+    <option value="0" th:selected="${order.status == 0}">Chờ xử lý</option>
+    <option value="1" th:selected="${order.status == 1}">Đã xác nhận</option>
+    <option value="2" th:selected="${order.status == 2}">Đang giao</option>
+    <option value="3" th:selected="${order.status == 3}">Hoàn thành</option>
+    <option value="-1" th:selected="${order.status == -1}">Đã hủy</option>
+</select>
+
+
+</form>
+
+</td>
+
+<td>
+
+    <!-- Xem chi tiết đơn hàng -->
+<a th:href="@{/admin/orders/view/{id}(id=${order.id})}" class="btn-view">
+        <i class="fas fa-eye"></i>
+    </a>
+
+<form th:action="@{/admin/orders/delete/{id}(id=${order.id})}" method="post">
+
+
+<button type="submit" class="action-btn delete">
+<i class="fas fa-trash"></i>
+</button>
+
+</form>
+
+
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Trang sản phẩm</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Chỉ giữ lại CSS cốt lõi của nội dung trang Product Detail */
+        :root {
+            --primary-green: #2e7d32;
+            --dark-green: #1b4332;
+            --light-green: #4caf50;
+            --border: #e5e7eb;
+            --text-gray: #6b7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma; }
+        body { background: #f9fafb; color: #333; }
+        .container { max-width: 1200px; margin: auto; padding: 0 20px; }
+
+        /* Banner mini đặc trưng của trang sản phẩm */
+        .banner { background-color: var(--light-green); padding: 40px 0; color: white; }
+        .banner-text h1 { font-size: 32px; }
+
+        .main-content { padding: 40px 0; display: flex; gap: 30px; }
+        .sidebar { width: 260px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: #fff; position: sticky; top: 20px; height: fit-content; }
+        .category-list { list-style: none; margin-top: 15px; }
+        .category-list a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-gray); padding: 8px 0; transition: 0.3s; }
+        .category-list a:hover { color: var(--primary-green); }
+
+        .content-right { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .product-detail-container { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 25px; }
+        .product-essential { display: flex; gap: 30px; }
+        .product-gallery { flex: 0 0 400px; }
+        .main-image-wrapper img { width: 100%; height: auto; border-radius: 8px; border: 1px solid #f0f0f0; }
+        
+        .product-sales-info { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .badge-discount { background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .btn-cart { border: 1px solid var(--primary-green); color: var(--primary-green); background: #fff; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; }
+        .btn-buy { background: var(--primary-green); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: bold; }
+
+        .product-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 25px; }
+        .box-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+
+        @media (max-width: 992px) { .main-content { flex-direction: column; } .sidebar { width: 100%; position: static; } .product-essential { flex-direction: column; } .product-gallery { flex: 0 0 auto; } }
+    </style>
+</head>
+<body>
+
+    <section class="banner">
+        <div class="container">
+            <div class="banner-text">
+                <h1>Thiết bị Cá cảnh cao cấp</h1>
+                <p>Chi tiết sản phẩm chất lượng chuẩn Aquascape</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="container main-content">
+        <aside class="sidebar">
+            <div class="sidebar-title"><i class="fas fa-th-large"></i> Danh mục</div>
+            <ul class="category-list">
+                <a th:href="@{/category/1}"><i class="fa-solid fa-fish"></i> Cá cảnh</a>
+                <a th:href="@{/category/2}"><i class="fa-solid fa-fish"></i> Hồ cá</a>
+                <a th:href="@{/category/3}"><i class="fa-solid fa-fish"></i> Máy Lọc</a>
+                <a th:href="@{/category/4}"><i class="fa-solid fa-fish"></i> Thức ăn</a>
+                <a th:href="@{/category/5}"><i class="fa-solid fa-fish"></i> Đèn thủy sinh</a>
+                <a th:href="@{/category/6}"><i class="fa-solid fa-fish"></i> Thuốc</a>
+                <a th:href="@{/category/7}"><i class="fa-solid fa-fish"></i> Cây thủy sinh</a>
+                <a th:href="@{/category/8}"><i class="fa-solid fa-fish"></i> Combo hồ cá</a>
+                <a th:href="@{/news}"><i class="fa-solid fa-fish"></i> Tin tức</a>
+                <a th:href="@{/order-history}"><i class="fa-solid fa-fish"></i> Lịch sử mua hàng</a>
+            </ul>
+        </aside>
+
+        <div class="content-right">
+            <div class="product-detail-container">
+                <div class="product-essential">
+                    <div class="product-gallery">
+                        <div class="main-image-wrapper">
+                            <img id="mainImage"
+                                th:src="${product.images != null and !product.images.isEmpty()}
+                                ? @{'/images/' + ${product.images[0].imageUrl}}
+                                : @{/images/default.jpg}">
+                        </div>
+                    </div>
+
+                    <div class="product-sales-info">
+                        <h1 th:text="${product.name}">Tên sản phẩm</h1>
+                        
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div style="color: #f1c40f;">⭐⭐⭐⭐⭐</div>
+                            <div style="color: #666; border-left: 1px solid #ddd; padding-left: 15px;">
+                                Đã bán: <b th:text="${soldCount ?: 0}">0</b>
+                            </div>
+                        </div>
+
+                        <div class="price-box">
+                            <div style="color: #e11d48; font-size: 28px; font-weight: bold;" 
+                                th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                            </div>
+                        </div>
+
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <div style="margin-bottom: 20px;">
+                                <span>Số lượng:</span>
+                                <input type="number" name="quantity" value="1" min="1" th:max="${product.stock}" style="width: 60px; padding: 5px; text-align: center;">
+                                <small th:text="'(' + ${product.stock} + ' có sẵn)'"></small>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" class="btn-cart"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ</button>
+                                <button type="submit" th:formaction="@{/checkout/instant}" class="btn-buy">Mua ngay</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-box">
+                <h3 class="box-title">Mô tả sản phẩm</h3>
+                <p th:text="${product.description ?: 'Chưa có mô tả.'}" style="line-height: 1.6; color: #4b5563;"></p>
+            </div>
+
+            <div class="product-box">
+                <h3 class="box-title">Đánh giá khách hàng</h3>
+                <div th:if="${#lists.isEmpty(reviews)}" style="color: #999; font-style: italic;">Chưa có đánh giá nào.</div>
+                <div th:each="r : ${reviews}" style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                    <div style="display: flex; justify-content: space-between;">
+    <b th:text="${r.user.name}">Tên User</b>
+    <span style="color: #f1c40f;">
+        <i th:each="star : ${#numbers.sequence(1, r.rating)}" class="fas fa-star"></i>
+        <i th:each="star : ${#numbers.sequence(r.rating + 1, 5)}" class="far fa-star" th:if="${r.rating < 5}"></i>
+    </span>
+</div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{footer :: bottom_footer}"></div>
+
+    <script>
+        // Script hỗ trợ đổi ảnh nếu có gallery (tùy chọn)
+        function changeImage(url) {
+            document.getElementById('mainImage').src = url;
+        }
+    </script>
+</body>
+</html>

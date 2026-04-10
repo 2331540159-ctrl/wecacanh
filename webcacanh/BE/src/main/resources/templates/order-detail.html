@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+--primary-green:#2e7d32;
+--dark-green:#1b4332;
+--light-green:#4caf50;
+--border:#e5e7eb;
+--text-gray:#6b7280;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,sans-serif; }
+
+body{
+background:#f9fafb;
+color:#333;
+padding: 40px 0; /* Thêm khoảng cách trên dưới khi không có header/footer */
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:0 20px;
+}
+
+/* ================= MAIN CARDS ================= */
+.card{
+background:#fff;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+border:1px solid var(--border);
+}
+
+.title{
+font-size:20px;
+font-weight:600;
+margin-bottom:20px;
+color:var(--primary-green);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+/* ORDER INFO GRID */
+.order-info{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+font-size:14px;
+}
+
+.order-info div{
+background:#4caf5015;
+padding:14px;
+border-radius:8px;
+border:1px solid var(--border);
+}
+
+/* TABLE STYLING */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top: 10px;
+}
+
+th,td{
+padding:14px;
+border-bottom:1px solid var(--border);
+text-align:left;
+font-size:14px;
+}
+
+th{
+background:#4caf5020;
+font-weight:600;
+color:var(--primary-green);
+}
+
+/* PAYMENT SUMMARY */
+.payment-summary {
+    margin-left:auto; 
+    max-width:400px; 
+    margin-top:30px; 
+    background:#fffefb; 
+    padding:20px; 
+    border:1px solid #fffae6; 
+    border-radius:8px;
+}
+
+.payment-row {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-size:14px;
+}
+
+.total-row {
+    font-size:20px;
+    font-weight:800;
+    color:#ee4d2d;
+    border-top:1px dashed #ddd;
+    padding-top:15px;
+    margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="card" th:if="${order != null}">
+        <div class="title">
+            <i class="fas fa-file-invoice"></i> Chi tiết đơn hàng
+        </div>
+
+        <div class="order-info">
+            <div>
+                <b>Mã đơn:</b> 
+                <span th:text="${'#ORD-' + order.id}" style="color: #2e7d32; font-weight: 600;"></span>
+            </div>
+            <div>
+                <b>Ngày đặt:</b> 
+                <span th:if="${order.createdAt != null}" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+            <div style="grid-column: span 2;">
+                <b>Trạng thái:</b>
+                <span th:switch="${order.status}">
+                    <span th:case="0">Chờ xử lí</span>
+                    <span th:case="1">Đã xác nhận</span>
+                    <span th:case="2">Đang giao</span>
+                    <span th:case="3">Hoàn thành</span>
+                    <span th:case="-1">Đã hủy</span>
+                </span>
+            </div>
+            <div style="grid-column: span 2;">
+                <b>Dự kiến nhận hàng:</b>
+                <span th:if="${order.createdAt != null}" th:text="${#temporals.format(order.createdAt.plusDays(3), 'dd/MM/yyyy')}"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="title">Danh sách sản phẩm</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th style="text-align:center;">Giá</th>
+                    <th style="text-align:center;">Số lượng</th>
+                    <th style="text-align:right;">Tổng</th>
+                </tr>
+            </thead>
+            <tbody th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
+                <tr th:each="item : ${order.orderItems}">
+                    <td>
+                        <div style="display:flex;align-items:center;gap:15px;">
+                            <img th:src="${item.image != null ? '/images/' + item.image : '/images/default.jpg'}"
+                                 style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
+                            <div>
+                                <div th:text="${item.productName}" style="font-weight:600;"></div>
+                                <div style="font-size:12px;color:#999;">Mã SP: #[[${item.productId}]]</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="text-align:center;" th:text="${item.price != null ? #numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+                    <td style="text-align:center;" th:text="${item.quantity}"></td>
+                    <td style="text-align:right; font-weight:bold; color:#2e7d32;" th:text="${item.price != null && item.quantity != null ? #numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+                </tr>
+            </tbody>
+            <tbody th:if="${order.orderItems == null or order.orderItems.isEmpty()}">
+                <tr>
+                    <td colspan="4" style="text-align:center;color:#999;">Không có sản phẩm</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="payment-summary">
+            <div class="payment-row">
+                <span>Tổng tiền hàng:</span>
+                <span th:text="${order.total != null ? #numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></span>
+            </div>
+            <div class="payment-row">
+                <span>Phí vận chuyển:</span>
+                <span style="color:#2e7d32;">Miễn phí</span>
+            </div>
+            <div class="payment-row total-row">
+                <span>Tổng thanh toán:</span>
+                <span th:text="${order.total != null ? #numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></span>
+            </div>
+            <div style="margin-top:10px; text-align:right; font-size:13px;">
+                Phương thức: <b th:text="${order.paymentMethod != null ? order.paymentMethod : 'COD'}"></b>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

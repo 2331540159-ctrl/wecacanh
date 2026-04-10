@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Đặt hàng</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --dark-green: #1b4332;
+            --light-green: #4caf50;
+            --border: #e5e7eb;
+            --text-gray: #6b7280;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #f9fafb; color: #333; padding: 40px 0; }
+        .container { max-width: 1000px; margin: auto; padding: 0 20px; }
+
+        /* Nút quay lại */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+        .back-link:hover { opacity: 0.8; transform: translateX(-5px); }
+
+        /* Card chính */
+        .order-detail-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Thanh trạng thái tối ưu */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .order-id-group h1 { font-size: 20px; color: var(--dark-green); }
+        .order-id-group span { font-size: 14px; color: var(--text-gray); }
+
+        .progress-container { flex: 1; max-width: 400px; margin: 0 40px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; font-weight: 600; }
+        .progress-bar-bg { height: 8px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--light-green), var(--primary-green)); transition: 1s ease-in-out; }
+
+        /* Badge trạng thái */
+        .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; color: white; }
+        .status-pending { background: #f59e0b; }
+        .status-shipping { background: #3b82f6; }
+        .status-done { background: #22c55e; }
+        .status-cancel { background: #ef4444; }
+
+        /* Bảng sản phẩm */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { text-align: left; padding: 15px; background: #f8fafc; color: var(--text-gray); font-size: 13px; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+
+        .product-info { display: flex; align-items: center; gap: 15px; }
+        .product-info img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
+        .product-name { font-weight: 600; color: #1f2937; }
+
+        /* Thông tin tổng kết */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        .info-box { background: #f3f4f6; padding: 20px; border-radius: 10px; }
+        .info-box h3 { font-size: 16px; margin-bottom: 12px; color: var(--dark-green); border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+        .info-box p { font-size: 14px; line-height: 1.6; color: #4b5563; }
+
+        .price-details { text-align: right; display: flex; flex-direction: column; gap: 10px; }
+        .price-row { display: flex; justify-content: flex-end; gap: 40px; font-size: 15px; color: var(--text-gray); }
+        .grand-total { font-size: 24px; font-weight: 800; color: var(--danger); margin-top: 10px; }
+
+        @media (max-width: 768px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .status-header { flex-direction: column; gap: 20px; text-align: center; }
+            .progress-container { max-width: 100%; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a th:href="@{/order-history}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Quay lại lịch sử mua hàng
+    </a>
+
+    <div class="order-detail-card" th:if="${order != null}">
+        <div class="status-header">
+            <div class="order-id-group">
+                <h1>Đơn hàng #<span th:text="${order.id}"></span></h1>
+                <span>Ngày đặt: <span th:text="${order.date}"></span></span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-labels">
+                    <span th:style="${order.status == 'PENDING'} ? 'color:var(--primary-green)' : ''">Chờ xử lý</span>
+                    <span th:style="${order.status == 'SHIPPING'} ? 'color:var(--primary-green)' : ''">Đang giao</span>
+                    <span th:style="${order.status == 'COMPLETED'} ? 'color:var(--primary-green)' : ''">Đã giao</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" 
+                         th:style="'width:' + (
+                            ${order.status == 'PENDING'} ? '15%' :
+                            (${order.status == 'SHIPPING'} ? '50%' :
+                            (${order.status == 'COMPLETED'} ? '100%' :
+                            (${order.status == 'CANCELLED'} ? '100%; background: #ef4444;' : '0%')))
+                         )">
+                    </div>
+                </div>
+            </div>
+
+            <div class="badge-area">
+                <span class="status-badge" 
+                      th:text="${order.status}"
+                      th:classappend="
+                        ${order.status == 'PENDING'} ? ' status-pending' :
+                        (${order.status == 'SHIPPING'} ? ' status-shipping' :
+                        (${order.status == 'COMPLETED'} ? ' status-done' :
+                        (${order.status == 'CANCELLED'} ? ' status-cancel' : '')))
+                      ">
+                </span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th style="text-align: center;">Đơn giá</th>
+                    <th style="text-align: center;">Số lượng</th>
+                    <th style="text-align: right;">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${order.items}">
+                    <td>
+                        <div class="product-info">
+                            <img th:src="@{${item.image}}" alt="Sản phẩm">
+                            <span class="product-name" th:text="${item.name}"></span>
+                        </div>
+                    </td>
+                    <td style="text-align: center;" th:text="${item.price} + ' đ'"></td>
+                    <td style="text-align: center;" th:text="'x' + ${item.quantity}"></td>
+                    <td style="text-align: right; font-weight: 700; color: var(--dark-green);" th:text="${item.total} + ' đ'"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="summary-grid">
+            <div class="info-box">
+                <h3><i class="fas fa-truck"></i> Thông tin nhận hàng</h3>
+                <p><strong>Người nhận:</strong> <span th:text="${order.customerName}"></span></p>
+                <p><strong>Số điện thoại:</strong> <span th:text="${order.phone}"></span></p>
+                <p><strong>Địa chỉ:</strong> <span th:text="${order.address}"></span></p>
+            </div>
+
+            <div class="price-details">
+                <div class="price-row">
+                    <span>Tạm tính:</span>
+                    <strong th:text="${order.subtotal} + ' đ'"></strong>
+                </div>
+                <div class="price-row">
+                    <span>Phí vận chuyển:</span>
+                    <strong th:text="${order.ship} + ' đ'"></strong>
+                </div>
+                <div class="grand-total">
+                    <span style="font-size: 14px; color: #333; font-weight: 400;">Tổng thanh toán:</span><br>
+                    <span th:text="${order.total} + ' đ'"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

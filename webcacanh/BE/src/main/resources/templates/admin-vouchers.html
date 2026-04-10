@@ -1,0 +1,313 @@
+<!DOCTYPE html> 
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Quản lý Voucher</title>
+
+<link rel="stylesheet"
+th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css}"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary-green:#2e7d32;
+--dark-green:#1b4332;
+--border:#e5e7eb;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI';
+}
+
+body{
+display:flex;
+background:#f4f6f8;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+height:100vh;
+background:var(--dark-green);
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+font-size:26px;
+}
+
+.sidebar ul{
+list-style:none;
+}
+
+.sidebar ul li{
+margin:15px 0;
+}
+
+.sidebar ul li a{
+display:flex;
+align-items:center;
+gap:10px;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar ul li a:hover{
+background:rgba(255,255,255,0.15);
+}
+
+.logout{
+margin-top:30px;
+border-top:1px solid rgba(255,255,255,0.2);
+padding-top:15px;
+}
+
+.logout a{
+display:flex;
+align-items:center;
+gap:10px;
+color:#ffb4b4;
+text-decoration:none;
+padding:10px;
+}
+
+
+/* MAIN */
+
+.main{
+margin-left:240px;
+width:100%;
+}
+
+/* HEADER */
+
+.admin-header{
+height:70px;
+background:white;
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 30px;
+}
+
+.admin-header h1{
+font-size:30px;
+}
+
+/* CONTENT */
+
+.content{
+padding:30px;
+}
+
+/* CARD */
+
+.card{
+background:white;
+border-radius:10px;
+border:1px solid var(--border);
+padding:25px;
+}
+
+/* BUTTON */
+
+.btn-add {
+    background: var(--primary-green); /* Sửa thành tên biến đúng */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none; /* Nếu bạn đổi sang thẻ <a> */
+}
+.btn-add:hover {
+    background: var(--dark-green);
+}
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:4px;
+cursor:pointer;
+font-size:13px;
+}
+
+.btn-delete{
+background:#ef4444;
+color:white;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid var(--border);
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+/* STATUS */
+
+.status{
+padding:4px 8px;
+border-radius:4px;
+font-size:13px;
+}
+
+.active{
+background:#d1fae5;
+color:#065f46;
+}
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.delete {
+    background: #ef4444;
+    color: white;
+}                               
+
+.expired{
+background:#fee2e2;
+color:#991b1b;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+    <h2>ADMIN</h2>
+    <ul>
+        <li><a th:href="@{/admindashboard}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
+        <li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+        <li><a th:href="@{/admin/users}"><i class="fas fa-users"></i> Khách hàng</a></li>
+        <li><a th:href="@{/admin/vouchers}"><i class="fas fa-ticket"></i> Vouchers</a></li>
+        <li><a th:href="@{/admin/product-discount}"><i class="fas fa-tags"></i> Giảm giá sản phẩm</a></li>
+        <li><a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
+    </ul>
+
+    <div class="logout">
+        <a th:href="@{/logout}">
+            <i class="fas fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="admin-header">
+<h1>Quản lý Voucher</h1>
+</div>
+
+<div class="content">
+
+<div class="card">
+
+<div style="margin-bottom: 20px;">
+    <a th:href="@{/admin/vouchers/add}" class="btn-add">
+        <i class="fas fa-plus"></i> Thêm Voucher 
+    </a>
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Mã voucher</th>
+<th>Giảm (%)</th>
+<th>Giảm tối đa</th>
+<th>Đơn tối thiểu</th>
+<th>Số lượng</th>
+<th>Ngày bắt đầu</th>
+<th>Ngày kết thúc</th>
+<th>Trạng thái</th>
+<th>Hành động</th>
+</tr>
+</thead>
+
+<tbody>
+    
+    <tr th:each="v : ${vouchers}">
+        <td th:text="${v.id}"></td>
+
+        <td th:text="${v.code}" style="font-weight: bold; color: var(--primary);"></td>
+
+        <td th:text="${v.discountPercent} + '%'"></td>
+
+        <td th:text="${v.maxDiscount != null ? #numbers.formatDecimal(v.maxDiscount, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}"></td>
+
+        <td th:text="${v.minOrderValue != null ? #numbers.formatDecimal(v.minOrderValue, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}"></td>
+
+        <td th:text="${v.quantity}"></td>
+
+        <td th:text="${v.startDate != null ? #temporals.format(v.startDate, 'dd/MM/yyyy') : '--'}"></td>
+
+        <td th:text="${v.endDate != null ? #temporals.format(v.endDate, 'dd/MM/yyyy') : '--'}"></td>
+
+        <td>
+            <span th:class="${v.status == 'ACTIVE' ? 'status active' : 'status expired'}" 
+                  th:text="${v.status == 'ACTIVE' ? 'Đang hoạt động' : 'Hết hạn/Tạm dừng'}">
+            </span>
+        </td>
+
+        <td>
+            <div style="display: flex; gap: 8px;">
+                
+                <a th:href="@{/admin/vouchers/delete/{id}(id=${v.id})}" 
+                   class="btn btn-delete" 
+                   onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này?')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

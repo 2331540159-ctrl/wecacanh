@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Trang cá nhân</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* CSS CỐT LÕI CHO TRANG PROFILE */
+    :root {
+        --primary-green: #2e7d32;
+        --dark-green: #1b4332;
+        --border: #e5e7eb;
+        --text-gray: #6b7280;
+        --accent-orange: #ee4d2d;
+    }
+
+    .profile-container {
+        display: flex;
+        gap: 30px;
+        padding: 40px 0;
+        max-width: 1200px;
+        margin: auto;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    /* SIDEBAR */
+    .profile-sidebar {
+        width: 260px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        height: fit-content;
+    }
+
+    .user-box {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-box img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary-green);
+    }
+
+    .menu {
+        list-style: none;
+        padding: 0;
+    }
+
+    .menu li {
+        padding: 12px 15px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #444;
+    }
+
+    .menu li:hover { background: #f3f4f6; }
+    .menu .active { color: var(--accent-orange); font-weight: bold; background: #fff5f3; }
+
+    /* CONTENT AREA */
+    .profile-content {
+        flex: 1;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 20px;
+        align-items: center;
+        margin-top: 25px;
+    }
+
+    .form-grid input, .form-grid select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-save { background: var(--accent-orange); color: white; margin-right: 10px; }
+    .btn-save:hover { background: #d73211; transform: translateY(-1px); }
+    
+    .btn-password { background: #f0f0f0; color: #333; }
+    .btn-password:hover { background: #e0e0e0; }
+
+    @media(max-width: 992px) {
+        .profile-container { flex-direction: column; padding: 20px; }
+        .profile-sidebar { width: 100%; }
+        .form-grid { grid-template-columns: 1fr; gap: 10px; }
+    }
+</style>
+
+<div class="profile-container">
+    <aside class="profile-sidebar">
+        <div class="user-box">
+            <img th:src="${user.avatar != null} ? @{'/images/' + ${user.avatar}} : 'https://via.placeholder.com/100'" id="avatarPreview">
+            <h4 th:text="${user.name}" style="margin: 10px 0 5px;">Tên người dùng</h4>
+            <div class="user-info" style="font-size: 12px; color: var(--text-gray);">
+                <i class="fas fa-pen"></i> Sửa hồ sơ
+            </div>
+        </div>
+
+        <ul class="menu">
+            <li class="active"><i class="fas fa-user"></i> Hồ sơ</li>
+            <li><i class="fas fa-bell"></i> Thông báo</li>
+            <li><i class="fas fa-wallet"></i> Ngân hàng</li>
+            <li><i class="fas fa-file-invoice"></i> Đơn mua</li>
+            <li><i class="fas fa-ticket-alt"></i> Kho Voucher</li>
+        </ul>
+    </aside>
+
+    <main class="profile-content">
+        <div style="border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h2 style="margin: 0; font-size: 20px;">Hồ sơ của tôi</h2>
+            <p style="margin: 5px 0 0; color: var(--text-gray); font-size: 14px;">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+        </div>
+
+        <form th:action="@{/profile/update}" method="post" enctype="multipart/form-data">
+            <div class="form-grid">
+                <label>Tên đăng nhập</label>
+                <div th:text="${user.username}" style="font-weight: 600;">username_display</div>
+
+                <label>Tên hiển thị</label>
+                <input type="text" name="name" th:value="${user.name}">
+
+                <label>Email</label>
+                <input type="email" name="email" th:value="${user.email}">
+
+                <label>Số điện thoại</label>
+                <input type="text" name="phone" th:value="${user.phone}">
+
+                <label>Địa chỉ</label>
+                <input type="text" name="address" th:value="${user.address}">
+
+                <label>Giới tính</label>
+                <div style="display: flex; gap: 20px;">
+                    <label style="font-weight: 400;"><input type="radio" name="gender" value="male" th:checked="${user.gender == 'male'}"> Nam</label>
+                    <label style="font-weight: 400;"><input type="radio" name="gender" value="female" th:checked="${user.gender == 'female'}"> Nữ</label>
+                </div>
+
+                <label>Ngày sinh</label>
+                <div style="display: flex; gap: 10px;">
+                    <select name="day" style="flex: 1;">
+                        <option th:each="d : ${#numbers.sequence(1,31)}" th:value="${d}" th:text="${d}" th:selected="${d == user.day}"></option>
+                    </select>
+                    <select name="month" style="flex: 1;">
+                        <option th:each="m : ${#numbers.sequence(1,12)}" th:value="${m}" th:text="'Tháng ' + ${m}" th:selected="${m == user.month}"></option>
+                    </select>
+                    <select name="year" style="flex: 1;">
+                        <option th:each="y : ${#numbers.sequence(1970, 2026)}" th:value="${y}" th:text="${y}" th:selected="${y == user.year}"></option>
+                    </select>
+                </div>
+
+                <label>Ảnh đại diện</label>
+                <div>
+                    <input type="file" name="avatar" id="avatarInput" accept="image/*">
+                    <p style="font-size: 12px; color: #999; margin-top: 5px;">Dụng lượng file tối đa 1MB. Định dạng: .JPEG, .PNG</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; padding-left: 160px;">
+                <button type="submit" class="btn btn-save">Lưu thay đổi</button>
+                <button type="button" class="btn btn-password" th:onclick="|window.location.href='@{/change-password}'|">Đổi mật khẩu</button>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    // Preview ảnh trước khi upload
+    document.getElementById('avatarInput').onchange = evt => {
+        const [file] = evt.target.files;
+        if (file) {
+            document.getElementById('avatarPreview').src = URL.createObjectURL(file);
+        }
+    }
+</script>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Giỏ hàng</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --dark-green: #1b4332;
+            --light-green: #4caf50;
+            --border: #e5e7eb;
+            --text-gray: #6b7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #f9fafb; color: #333; }
+        .container { max-width: 1200px; margin: auto; padding: 0 20px; width: 100%; }
+
+        /* BANNER NỘI DUNG */
+        .banner { background-color: var(--light-green); padding: 60px 0; color: white; }
+        .banner-content { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+        .banner-content h1 { font-size: 36px; margin-bottom: 12px; color: var(--dark-green); }
+        .banner-content p { margin-bottom: 25px; }
+        .btn-buy { display: inline-block; background: var(--dark-green); color: white; padding: 12px 30px; border-radius: 6px; font-weight: bold; text-decoration: none; }
+
+        /* GIỎ HÀNG GRID */
+        .main-content { padding: 40px 0; }
+        .cart-header, .cart-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 140px 160px 160px 120px;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+        }
+
+        .cart-header { background: #f3f4f6; border: 1px solid var(--border); border-radius: 8px; font-weight: 600; text-align: center; }
+        .cart-header div:nth-child(2) { text-align: left; }
+
+        .cart-item { background: white; border: 1px solid var(--border); border-top: none; text-align: center; }
+        .product-info { display: flex; align-items: center; gap: 12px; text-align: left; }
+        .product-info img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; }
+        
+        .qty { display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .qty button { width: 28px; height: 28px; border: 1px solid var(--border); background: white; cursor: pointer; }
+        .delete { color: #ef4444; border: none; background: none; cursor: pointer; }
+
+        /* VOUCHER & TỔNG TIỀN */
+        .voucher-box, .cart-footer { margin-top: 20px; background: white; border: 1px solid var(--border); padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-voucher, .btn-checkout, .delete-all { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; padding: 10px 20px; color: white; }
+        .btn-voucher { background: var(--primary-green); }
+        .btn-checkout { background: var(--dark-green); padding: 12px 35px; }
+        .delete-all { background: #ef4444; text-decoration: none; font-size: 14px; }
+        .total-price { font-size: 24px; font-weight: bold; color: #ee4d2d; }
+        
+        .voucher-input input { padding: 10px; border: 1px solid var(--border); border-radius: 4px; flex: 1; }
+    </style>
+</head>
+
+<body>
+
+    <section class="banner">
+        <div class="container banner-content">
+            <div class="banner-text">
+                <h1>Thiết bị Cá cảnh cao cấp</h1>
+                <p>Nâng tầm hồ cá của bạn với sản phẩm chất lượng chuẩn Aquascape</p>
+                <a th:href="@{/products}" class="btn-buy">Tiếp tục mua sắm</a>
+            </div>
+            <div id="saleContainer"></div>
+        </div>
+    </section>
+
+    <main class="container main-content">
+        <div class="cart-header">
+            <div><input type="checkbox" id="selectAllHeader" onclick="toggleSelectAll(this)"></div>
+            <div>Sản phẩm</div> 
+            <div>Đơn giá</div>
+            <div>Số lượng</div>
+            <div>Số tiền</div>
+            <div>Thao tác</div>
+        </div>
+
+        <div class="cart-list">
+            <div th:each="item : ${cartItems}" class="cart-item">
+                <div>
+                    <input type="checkbox" class="item-checkbox" checked name="selectedIds" th:value="${item.id}" onchange="updateOrderTotal(); syncSelectAll();">
+                </div>
+
+                <div class="product-info">
+                    <img th:src="@{'/images/' + ${item.product.mainImageUrl}}" src="https://via.placeholder.com/70">
+                    <div class="product-name" th:text="${item.product.name}">Tên sản phẩm</div>
+                </div>
+
+                <div th:text="${#numbers.formatDecimal(item.product.finalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                
+                <div class="qty">
+                    <button type="button" th:onclick="'changeQuantity(' + ${item.id} + ', -1)'" th:disabled="${item.quantity <= 1}">-</button>
+                    <input type="number" th:id="'qty-' + ${item.id}" th:value="${item.quantity}" readonly style="width: 35px; text-align: center; border:none; background: transparent;">
+                    <button type="button" th:onclick="'changeQuantity(' + ${item.id} + ', 1)'">+</button>
+                </div>
+
+                <div class="item-total-price" 
+                    th:data-unit-price="${item.product.finalPrice}"
+                    th:text="${#numbers.formatDecimal(item.product.finalPrice * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+                    style="color: #ee4d2d; font-weight: bold;">
+                </div>
+
+                <form th:action="@{/cart/remove}" method="post">
+                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                    <button type="submit" class="delete"><i class="fas fa-trash"></i> Xóa</button>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(cartItems)}" style="text-align: center; padding: 60px; background: white; border: 1px solid var(--border); border-top: none;">
+                <p style="color: #999;">Giỏ hàng của bạn đang trống.</p>
+            </div>
+        </div>
+
+        <div class="voucher-box" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+            <div onclick="toggleVoucherList()" style="cursor: pointer; color: var(--dark-green); font-weight: bold;">
+                <i class="fas fa-ticket-alt"></i> Voucher của bạn (Click để xem)
+            </div>
+            
+            <div id="myVoucherList" style="display: none; width: 100%; background: #f9f9f9; padding: 15px; border: 1px dashed #ccc;">
+                <ul style="list-style: none;">
+                    <li th:each="v : ${vouchers}" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <div><strong th:text="${v.code}">CODE</strong> - Giảm <span th:text="${v.discountPercent}"></span>%</div>
+                        <button type="button" th:onclick="'applyQuickVoucher(\'' + ${v.code} + '\')'" style="background: var(--dark-green); color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">Dùng ngay</button>
+                    </li>
+                </ul>
+            </div>
+
+            <form th:action="@{/cart/apply-voucher}" method="post" id="voucherForm" class="voucher-input" style="width: 100%; display: flex; gap: 10px;">
+                <input type="text" name="voucherCode" id="voucherInput" th:value="${appliedVoucher}" placeholder="Nhập mã giảm giá">
+                <button type="submit" class="btn-voucher">Áp dụng</button>
+            </form>
+        </div>
+
+        <div class="cart-footer">
+            <div><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> Chọn tất cả</div>
+            <a th:href="@{/cart/clear}" class="delete-all" onclick="return confirm('Xóa toàn bộ giỏ hàng?')">Xóa tất cả</a>
+            <div style="display:flex; align-items:center; gap:40px;">
+                <div style="text-align: right;">
+                    <span style="font-size: 14px; color: #666;">Tổng thanh toán:</span><br>
+                    <span class="total-price" id="display-total-price" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                </div>
+                <form th:action="@{/checkout}" method="get">
+                    <button type="submit" class="btn-checkout">MUA HÀNG</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Các hàm JavaScript giữ nguyên để đảm bảo tính năng giỏ hàng hoạt động
+        function toggleVoucherList() {
+            const list = document.getElementById('myVoucherList');
+            list.style.display = list.style.display === "none" ? "block" : "none";
+        }
+
+        function applyQuickVoucher(code) {
+            document.getElementById('voucherInput').value = code;
+            document.getElementById('voucherForm').submit();
+        }
+
+        function updateOrderTotal() {
+            let total = 0;
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const checkbox = item.querySelector('.item-checkbox');
+                if (checkbox.checked) {
+                    const priceEl = item.querySelector('.item-total-price');
+                    const unitPrice = parseFloat(priceEl.dataset.unitPrice) || 0;
+                    const qty = parseInt(item.querySelector('input[type="number"]').value) || 0;
+                    total += qty * unitPrice;
+                }
+            });
+            document.getElementById('display-total-price').innerText = total.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function toggleSelectAll(source) {
+            document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = source.checked);
+            document.getElementById('selectAllHeader').checked = source.checked;
+            document.getElementById('selectAll').checked = source.checked;
+            updateOrderTotal();
+        }
+
+        function syncSelectAll() {
+            const all = document.querySelectorAll('.item-checkbox').length;
+            const checked = document.querySelectorAll('.item-checkbox:checked').length;
+            const isAll = all === checked;
+            document.getElementById('selectAllHeader').checked = isAll;
+            document.getElementById('selectAll').checked = isAll;
+            updateOrderTotal();
+        }
+
+        function changeQuantity(itemId, delta) {
+            fetch(`/cart/update?itemId=${itemId}&delta=${delta}`, { method: 'POST' })
+            .then(res => { if(res.ok) location.reload(); });
+        }
+    </script>
+</body>
+</html>

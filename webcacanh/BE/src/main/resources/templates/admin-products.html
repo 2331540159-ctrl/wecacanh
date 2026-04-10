@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý sản phẩm</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary-green:#2e7d32;
+--dark-green:#1b4332;
+--border:#e5e7eb;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI';
+}
+
+body{
+display:flex;
+background:#f4f6f8;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+height:100vh;
+background:var(--dark-green);
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+font-size:26px;
+}
+
+.sidebar ul{
+list-style:none;
+}
+
+.sidebar ul li{
+margin:15px 0;
+}
+
+.sidebar ul li a{
+display:flex;
+align-items:center;
+gap:10px;
+color:white;
+text-decoration:none;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar ul li a:hover{
+background:rgba(255,255,255,0.15);
+}
+
+.logout{
+margin-top:30px;
+border-top:1px solid rgba(255,255,255,0.2);
+padding-top:15px;
+}
+
+.logout a{
+display:flex;
+align-items:center;
+gap:10px;
+color:#ffb4b4;
+text-decoration:none;
+padding:10px;
+}
+
+/* MAIN */
+
+.main{
+margin-left:240px;
+width:100%;
+}
+
+.admin-header{
+height:70px;
+background:white;
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+padding:0 30px;
+}
+
+.content{
+padding:30px;
+}
+
+/* TOP BAR */
+
+.top-bar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+flex-wrap:wrap;
+gap:15px;
+}
+
+#searchInput{
+padding:8px 12px;
+border:1px solid var(--border);
+border-radius:6px;
+}
+
+.total-product{
+background:#e8f5e9;
+padding:8px 14px;
+border-radius:6px;
+font-weight:600;
+color:#2e7d32;
+}
+
+#categoryFilter{
+padding:8px 12px;
+border-radius:6px;
+border:1px solid var(--border);
+cursor:pointer;
+}
+
+.add-btn{
+background:var(--primary-green);
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.add-btn:hover{
+background:#256628;
+}
+
+/* TABLE */
+
+.table-box{
+background:white;
+border-radius:10px;
+border:1px solid var(--border);
+padding:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid var(--border);
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+.product-img{
+width:50px;
+height:50px;
+border-radius:6px;
+object-fit:cover;
+}
+
+/* DESCRIPTION */
+
+.product-description{
+max-width:250px;
+font-size:14px;
+color:#555;
+line-height:1.4;
+}
+
+/* STOCK */
+
+.stock-control{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.stock-btn{
+width:28px;
+height:28px;
+border:none;
+border-radius:4px;
+cursor:pointer;
+background:#e5e7eb;
+font-weight:bold;
+}
+
+.stock-btn:hover{
+background:#d1d5db;
+}
+
+.stock-number{
+min-width:30px;
+text-align:center;
+font-weight:600;
+}
+
+/* ACTION */
+
+.action-btn{
+border:none;
+padding:6px 10px;
+border-radius:4px;
+cursor:pointer;
+}
+
+.edit{
+background:#3b82f6;
+color:white;
+}
+
+.delete{
+background:#ef4444;
+color:white;
+}
+
+/* PAGINATION */
+
+.pagination-footer{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:8px;
+margin-top:25px;
+padding-top:15px;
+border-top:1px solid var(--border);
+}
+
+.page-btn{
+padding:6px 12px;
+border:1px solid var(--border);
+background:white;
+cursor:pointer;
+border-radius:4px;
+}
+
+.page-btn.active{
+background:var(--primary-green);
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>ADMIN</h2>
+
+<ul>
+<li><a th:href="@{/admindashboard}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+<li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
+<li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+<li><a th:href="@{/admin/user}"><i class="fas fa-users"></i> Khách hàng</a></li>
+<li><a th:href="@{/admin/vouchers}"><i class="fas fa-ticket"></i> Voucher</a></li>
+<li><a th:href="@{/admin/product-discount}"><i class="fas fa-tags"></i> Giảm giá sản phẩm</a></li>
+<li><a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
+</ul>
+
+<div class="logout">
+<a th:href="@{/logout}">
+<i class="fas fa-right-from-bracket"></i> Đăng xuất
+</a>
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="admin-header">
+<h1>Quản lý sản phẩm</h1>
+</div>
+
+<div class="content">
+
+<div class="top-bar">
+
+<input type="text" placeholder="Tìm sản phẩm..." id="searchInput">
+
+<div class="total-product">
+Tổng sản phẩm:
+<span id="totalProducts" th:text="${products.size()}">0</span>
+</div>
+
+<select id="categoryFilter">
+<option value="all">Tất cả</option>
+<option value="fish">Cá cảnh</option>
+<option value="tank">Hồ cá</option>
+<option value="filter">Máy lọc nước</option>
+<option value="light">Đèn thủy sinh</option>
+<option value="food">Thức ăn</option>
+<option value="medicine">Thuốc</option>
+<option value="plant">Cây thủy sinh</option>
+<option value="combo">Combo hồ cá</option>
+</select>
+
+<button class="add-btn"
+th:onclick="|window.location='@{/admin/products/add}'|">
++ Thêm sản phẩm
+</button>
+
+</div>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Hình</th>
+<th>Tên sản phẩm</th>
+<th>Mô tả</th>
+<th>Giá</th>
+<th>Tồn kho</th>
+<th>Hành động</th>
+</tr>
+</thead>
+
+<tbody id="productTable">
+
+<tr th:each="product : ${products}">
+
+<td th:text="${product.id}">1</td>
+
+<td>
+<img class="product-img"
+th:src="@{${product.getMainImageUrl()}}" alt="Ảnh sản phẩm">
+</td>
+
+<td th:text="${product.name}">Tên sản phẩm</td>
+
+<td class="product-description"
+th:text="${product.description}">
+Mô tả sản phẩm
+</td>
+
+<td th:text="${product.price} + 'đ'">0đ</td>
+
+<td>
+
+<div class="stock-control">
+
+<button class="stock-btn">-</button>
+
+<span class="stock-number"
+th:text="${product.stock}">0</span>
+
+<button class="stock-btn">+</button>
+
+</div>
+
+</td>
+
+<td>
+
+<button class="action-btn edit"
+th:onclick="|window.location='@{/admin/products/edit/{id}(id=${product.id})}'|">
+<i class="fas fa-edit"></i>
+</button>
+
+<button class="action-btn delete"
+th:onclick="|window.location='@{/admin/products/delete/{id}(id=${product.id})}'|">
+<i class="fas fa-trash"></i>
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="pagination-footer" id="pagination"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Trang chủ | Nextgen Guppies</title>
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --bg-gray: #f9fafb;
+        }
+
+        body { background-color: var(--bg-gray); margin: 0; }
+
+        /* Banner Xanh Lá - Tách biệt hoàn toàn */
+        .hero-banner {
+            background-color: var(--light-green);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+        .banner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner-text h1 { font-size: 32px; margin-bottom: 10px; }
+        .banner-text p { font-size: 16px; opacity: 0.9; }
+
+        .sale-cards { display: flex; gap: 15px; }
+        .card-mini {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            width: 100px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card-mini img { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
+
+        /* Bố cục Main Content */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px 50px 20px;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        .sidebar-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+        }
+        .category-list { list-style: none; }
+        .category-list a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: 0.2s;
+        }
+        .category-list a:hover { color: var(--primary-green); padding-left: 5px; }
+        .category-list i { width: 18px; color: var(--primary-green); }
+
+        /* Danh sách sản phẩm bên phải */
+        .content-area { flex: 1; }
+        .section-header {
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            color: #333;
+            border-left: 5px solid var(--primary-green);
+            padding-left: 15px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 180px; object-fit: cover; }
+        .product-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #333; text-decoration: none; height: 40px; overflow: hidden; }
+        .product-price { color: #e44d26; font-weight: 700; font-size: 16px; margin-bottom: 15px; }
+        
+        .btn-add-cart {
+            background: #1b4332;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-add-cart:hover { background: #2d6a4f; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+
+    <section class="hero-banner">
+        <div class="banner-container">
+            <div class="banner-text">
+                <h1>Thiết bị Cá cảnh cao cấp</h1>
+                <p>Nâng tầm hồ cá của bạn với sản phẩm chất lượng chuẩn Aquascape</p>
+            </div>
+            <div class="sale-cards">
+                <div class="card-mini"><img th:src="@{/images/ca-7-mau.jpg}" alt=""></div>
+                <div class="card-mini"><img th:src="@{/images/ca-duoi-kiem.jpg}" alt=""></div>
+                <div class="card-mini"><img th:src="@{/images/ca-chuot-my.jpg}" alt=""></div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-title"><i class="fas fa-bars"></i> Danh mục</div>
+            <div class="category-list">
+                <a th:href="@{/category/1}"><i class="fa-solid fa-fish"></i> Cá cảnh</a>
+                <a th:href="@{/category/2}"><i class="fa-solid fa-fish"></i> Hồ cá</a>
+                <a th:href="@{/category/3}"><i class="fa-solid fa-fish"></i> Máy Lọc</a>
+                <a th:href="@{/category/4}"><i class="fa-solid fa-fish"></i> Thức ăn</a>
+                <a th:href="@{/category/5}"><i class="fa-solid fa-fish"></i> Đèn thủy sinh</a>
+                <a th:href="@{/category/6}"><i class="fa-solid fa-fish"></i> Thuốc</a>
+                <a th:href="@{/category/7}"><i class="fa-solid fa-fish"></i> Cây thủy sinh</a>
+                <a th:href="@{/category/8}"><i class="fa-solid fa-fish"></i> Combo hồ cá</a>
+                <a th:href="@{/news}"><i class="fa-solid fa-fish"></i> Tin tức</a>
+                <a th:href="@{/order-history}"><i class="fa-solid fa-fish"></i> Lịch sử mua hàng</a>
+            </div>
+        </aside>
+
+        <div class="content-area">
+            <h2 class="section-header">Danh sách sản phẩm</h2>
+            <div class="product-grid">
+                <div class="product-card" th:each="p : ${dsSanPham}">
+                    <a th:href="@{/product/{id}(id=${p.id})}">
+                        <img th:src="${p.images != null and !p.images.empty} ? @{'/images/' + ${p.images[0].imageUrl}} : 'https://via.placeholder.com/250x180'" alt="Product">
+                    </a>
+                    <div class="product-info">
+                        <a th:href="@{/product/{id}(id=${p.id})}" class="product-name" th:text="${p.name}">Tên sản phẩm</a>
+                        <div class="product-price" th:text="${p.price != null ? #numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : 'Liên hệ'}">0 VNĐ</div>
+                        
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="productId" th:value="${p.id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn-add-cart">
+                                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{footer :: bottom_footer}"></div>
+</body>
+</html>

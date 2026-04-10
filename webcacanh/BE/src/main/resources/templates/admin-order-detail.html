@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Chi tiết đơn hàng</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Roboto,Arial;
+}
+
+/* BACKGROUND */
+
+body{
+background:linear-gradient(135deg,#eef7f1,#e8f5e9);
+color:#333;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:30px;
+}
+
+/* CARD */
+
+.card{
+background:white;
+border-radius:12px;
+padding:25px;
+margin-bottom:25px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+border:1px solid #e5e7eb;
+}
+
+/* HEADER */
+
+.order-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.order-id{
+font-size:22px;
+font-weight:600;
+color:#2e7d32;
+}
+
+.order-status{
+padding:6px 16px;
+border-radius:20px;
+font-size:13px;
+color:white;
+background:#4caf50;
+}
+
+.order-date{
+margin-top:8px;
+font-size:14px;
+color:#555;
+}
+
+/* TIMELINE */
+
+.timeline-card{
+background:#f8fbf9;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+border:1px solid #e0e0e0;
+}
+
+.timeline{
+display:flex;
+justify-content:space-between;
+position:relative;
+}
+
+.timeline::before{
+content:"";
+position:absolute;
+top:12px;
+left:0;
+width:100%;
+height:3px;
+background:#e5e7eb;
+}
+
+.step{
+position:relative;
+text-align:center;
+flex:1;
+}
+
+.circle{
+width:26px;
+height:26px;
+border-radius:50%;
+margin:auto;
+margin-bottom:8px;
+position:relative;
+z-index:2;
+}
+
+/* STATUS COLOR */
+
+.step-ordered .circle{background:#9ca3af;}
+.step-processing .circle{background:#3b82f6;}
+.step-shipping .circle{background:#f59e0b;}
+.step-completed .circle{background:#4caf50;}
+
+.step p{
+font-size:13px;
+color:#666;
+}
+
+/* INFO GRID */
+
+.info-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-top:10px;
+}
+
+.info-box{
+background:#f9fafb;
+border-radius:8px;
+padding:18px;
+font-size:14px;
+border:1px solid #e5e7eb;
+}
+
+.info-box h4{
+margin-bottom:10px;
+color:#2e7d32;
+}
+
+.info-box p{
+margin:6px 0;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+table th{
+background:#f1f5f9;
+text-align:left;
+padding:12px;
+font-size:14px;
+border-bottom:1px solid #e5e7eb;
+}
+
+table td{
+padding:12px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+.product{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.product img{
+width:60px;
+height:60px;
+border-radius:8px;
+object-fit:cover;
+border:1px solid #e5e7eb;
+}
+
+/* SUMMARY BOX */
+
+.summary{
+width:350px;
+margin-left:auto;
+margin-top:20px;
+background:#f9fafb;
+padding:18px;
+border-radius:10px;
+border:1px solid #e5e7eb;
+}
+
+.summary-row{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+font-size:14px;
+}
+
+.total{
+font-size:18px;
+font-weight:600;
+color:#4caf50;
+border-top:1px solid #e5e7eb;
+padding-top:10px;
+}
+
+/* BUTTON */
+
+.back-btn{
+display:inline-block;
+margin-top:25px;
+background:#4caf50;
+color:white;
+padding:10px 22px;
+border-radius:6px;
+text-decoration:none;
+font-size:14px;
+}
+
+.back-btn:hover{
+background:#43a047;
+}
+
+.back-btn i{
+margin-right:5px;
+}
+.bg-success { background: #4caf50; }
+.bg-warning { background: #f59e0b; }
+.bg-danger { background: #ef4444; }
+.bg-gray { background: #9ca3af; }
+
+.timeline::after{
+    content:"";
+    position:absolute;
+    top:12px;
+    left:0;
+    height:3px;
+    background:#4caf50;
+    z-index:1;
+    width:0%;
+}
+
+/* dynamic width */
+.timeline[data-status="0"]::after{ width:0%; }
+.timeline[data-status="1"]::after{ width:33%; }
+.timeline[data-status="2"]::after{ width:66%; }
+.timeline[data-status="3"]::after{ width:100%; }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HEADER CARD -->
+
+<div class="card">
+
+<div class="order-header">
+
+<div class="order-id">
+Đơn hàng: #<span th:text="${order.id}"> </span>
+</div>
+
+<div class="order-status"
+    th:classappend="${order.status == 0 ? 'bg-secondary' : 
+                      order.status == 1 ? 'bg-info' : 
+                      order.status == 2 ? 'bg-primary' : 
+                      order.status == 3 ? 'bg-success' : 
+                      order.status == -1 ? 'bg-danger' : 'bg-gray'}"
+     th:text="${order.status == 0 ? 'Chờ xử lý' : 
+               order.status == 1 ? 'Đã xác nhận' : 
+               order.status == 2 ? 'Đang giao' : 
+               order.status == 3 ? 'Hoàn thành' : 'Đã hủy'}">
+</div>
+</div>
+
+
+
+<div class="order-date">
+    Ngày đặt: 
+    <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+</div>
+
+<div class="timeline-card">
+
+    <div class="timeline" th:attr="data-status=${order.status}">
+
+    <!-- ĐÃ ĐẶT -->
+    <div class="step"
+         th:classappend="${order.status >= 0} ? ' step-ordered'">
+        <div class="circle"></div>
+        <p>Đã đặt</p>
+    </div>
+
+    <!-- XỬ LÝ -->
+    <div class="step"
+         th:classappend="${order.status >= 1} ? ' step-processing'">
+        <div class="circle"></div>
+        <p>Đang xử lý</p>
+    </div>
+
+    <!-- GIAO -->
+    <div class="step"
+         th:classappend="${order.status >= 2} ? ' step-shipping'">
+        <div class="circle"></div>
+        <p>Đang giao</p>
+    </div>
+
+    <!-- HOÀN THÀNH -->
+    <div class="step"
+         th:classappend="${order.status == 3} ? ' step-completed'">
+        <div class="circle"></div>
+        <p>Hoàn thành</p>
+    </div>
+
+</div>
+</div>
+
+<!-- CUSTOMER INFO -->
+
+<div class="card">
+
+<div class="info-grid">
+
+<div class="info-box">
+
+<h4>Thông tin khách hàng</h4>
+
+<p><b>Tên:</b> <span th:text="${order.customerName ?: 'Khách lẻ'}"></span></p>
+
+<p><b>SĐT:</b> <span th:text="${order.phone}"></span></p>
+
+<p><b>Email:</b> <span th:text="${order.email}"></span></p>
+
+</div>
+
+<div class="info-box">
+
+<h4>Địa chỉ giao hàng:</h4>
+
+<p th:text="${order.address}"></p>
+
+<p>
+<b>Thanh toán:</b>
+<span th:text="${order.paymentMethod}"></span>
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- PRODUCT LIST -->
+
+<div class="card">
+
+<h3>Danh sách sản phẩm</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Sản phẩm</th>
+<th>Giá</th>
+<th>Số lượng</th>
+<th>Thành tiền</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr th:each="item : ${order.orderItems}">
+
+<td>
+    <div class="product">
+        <img th:src="${item.image != null} 
+    ? @{/images/{img}(img=${item.image})} 
+    : @{/images/default.png}">
+        <span th:text="${item.productName}"></span>
+    </div>
+</td>
+
+<td th:text="${item.price != null ? #numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') : '0'} + 'đ'"></td>  
+
+<td th:text="${item.quantity}"></td>
+
+<td th:text="${#numbers.formatDecimal(item.total,0,'COMMA',0,'POINT')} + 'đ'"></td>
+
+</tr>
+</tbody>
+
+</table>
+
+<!-- SUMMARY -->
+
+<div class="summary">
+    <div class="summary-row">
+        <span>Tạm tính:</span>
+        <span th:text="${#numbers.formatDecimal(order.subtotal ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+    </div>
+
+    <div class="summary-row">
+        <span>Phí vận chuyển:</span>
+        <span th:text="${#numbers.formatDecimal(order.shippingFee ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+    </div>
+
+    <div class="summary-row total">
+        <span>Tổng cộng:</span>
+        <span th:text="${#numbers.formatDecimal(order.total ?: 0, 0, 'COMMA', 0, 'POINT')} + 'đ'"></span>
+    </div>
+</div>
+
+
+</div>
+
+</div>
+
+</body>
+</html>

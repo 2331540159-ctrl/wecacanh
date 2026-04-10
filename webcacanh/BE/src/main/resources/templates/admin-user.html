@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý người dùng</title>
+
+    <link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css}" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --dark-green: #1b4332;
+            --light-green: #a8d5a2;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: var(--dark-green);
+            color: white;
+            padding: 20px;
+            position: fixed;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 26px;
+            text-align: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 240px;
+            width: calc(100% - 240px);
+        }
+
+        /* HEADER */
+        .admin-header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .admin-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .admin-header .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* DASHBOARD CONTENT */
+        .dashboard {
+            padding: 30px;
+        }
+
+        .table-box {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .table-box h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-edit {
+            background: #facc15;
+            color: #000;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover { background: #eab308; }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover { background: #dc2626; }
+
+        .btn-add {
+            background: var(--primary-green);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .btn-add:hover { background: #236327; }
+
+        .logout {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 15px;
+        }
+
+        .logout a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffb4b4;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>ADMIN</h2>
+        <ul>
+            <li><a th:href="@{/admindashboard}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Quản lý sản phẩm</a></li>
+            <li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+            <li><a th:href="@{/admin/user}"><i class="fas fa-users"></i> Khách hàng</a></li>
+            <li><a th:href="@{/admin/vouchers}"><i class="fas fa-ticket"></i> Vouchers</a></li>
+            <li><a th:href="@{/admin/product-discount}"><i class="fas fa-tags"></i> Giảm giá sản phẩm</a></li>
+            <li><a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
+        </ul>
+
+        <div class="logout">
+            <a th:href="@{/logout}">
+                <i class="fas fa-right-from-bracket"></i>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="admin-header">
+            <h1>Quản lý người dùng</h1>
+            <div class="admin-user">
+                <i class="fas fa-user-circle fa-2x"></i>
+                <span>Quản trị viên</span>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="table-box">
+                <h2>Danh sách người dùng</h2>
+
+                <button class="btn-add" th:onclick="|window.location='@{/admin/users/add}'|">
+                    <i class="fas fa-plus"></i> Thêm người dùng
+                </button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Email</th>
+                            <th>SĐT</th>
+                            <th>Vai trò</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.id}"></td>
+                            <td th:text="${user.name}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.phone}"></td>
+                            <td th:text="${user.role}"></td>
+                            <td>
+                                <button class="btn btn-edit" th:onclick="|window.location='@{/admin/users/edit/{id}(id=${user.id})}'|">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-delete" th:onclick="|if(confirm('Xác nhận xóa người dùng này?')) window.location='@{/admin/users/delete/{id}(id=${user.id})}'|">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

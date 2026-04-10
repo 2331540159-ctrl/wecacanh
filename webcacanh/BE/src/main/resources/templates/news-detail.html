@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Chi tiết tin tức</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --dark-green: #1b4332;
+            --light-green: #4caf50;
+            --text-dark: #333;
+            --text-gray: #4b5563;
+            --border-color: #e5e7eb;
+            --bg-gray: #f9fafb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { color: var(--text-dark); background: var(--bg-gray); line-height: 1.6; }
+        .container { max-width: 1200px; margin: auto; padding: 0 20px; }
+        a { text-decoration: none; transition: 0.3s; }
+
+        /* BREADCRUMB */
+        .breadcrumb { padding: 20px 0; font-size: 14px; color: var(--text-gray); }
+        .breadcrumb a { color: var(--primary-green); }
+        .breadcrumb i { margin: 0 8px; font-size: 12px; }
+
+        /* ARTICLE LAYOUT */
+        .article-layout { display: grid; grid-template-columns: 8fr 4fr; gap: 30px; padding-bottom: 60px; }
+
+        .article-main { background: #fff; padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .article-category { display: inline-block; background: var(--light-green); color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 15px; }
+        .article-title { font-size: 32px; color: var(--dark-green); line-height: 1.3; margin-bottom: 20px; }
+        
+        .article-meta { display: flex; gap: 20px; font-size: 13px; color: var(--text-gray); margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .article-meta i { color: var(--primary-green); margin-right: 5px; }
+
+        .article-featured-img { width: 100%; border-radius: 8px; margin-bottom: 30px; overflow: hidden; }
+        .article-featured-img img { width: 100%; height: auto; display: block; }
+
+        .article-body { font-size: 17px; color: #444; }
+        .article-body h3 { margin: 30px 0 15px; color: var(--dark-green); }
+        .article-body p { margin-bottom: 18px; }
+        
+        .article-quote { border-left: 5px solid var(--primary-green); background: #f0fdf4; padding: 20px; font-style: italic; margin: 30px 0; border-radius: 0 8px 8px 0; }
+
+        /* SIDEBAR */
+        .sidebar-widget { background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; }
+        .widget-title { font-size: 18px; color: var(--dark-green); margin-bottom: 20px; border-bottom: 2px solid var(--primary-green); padding-bottom: 5px; display: inline-block; }
+        
+        .related-post { display: flex; gap: 12px; margin-bottom: 15px; }
+        .related-img { width: 70px; height: 70px; border-radius: 6px; object-fit: cover; background: #eee; }
+        .related-info h4 { font-size: 14px; margin-bottom: 5px; line-height: 1.4; }
+        .related-info h4 a { color: var(--text-dark); }
+        .related-info h4 a:hover { color: var(--primary-green); }
+        .related-info span { font-size: 12px; color: var(--text-gray); }
+
+        @media (max-width: 992px) {
+            .article-layout { grid-template-columns: 1fr; }
+            .article-title { font-size: 26px; }
+            .article-main { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <nav class="breadcrumb">
+            <a th:href="@{/}">Trang chủ</a> <i class="fas fa-chevron-right"></i>
+            <a th:href="@{/news}">Tin tức</a> <i class="fas fa-chevron-right"></i>
+            <span th:text="${news.title}">Tiêu đề bài viết</span>
+        </nav>
+
+        <div class="article-layout">
+            <main class="article-main">
+                <div class="article-category" th:text="${news.categoryName}">Danh mục</div>
+                <h1 class="article-title" th:text="${news.title}">Tiêu đề tin tức chi tiết</h1>
+                
+                <div class="article-meta">
+                    <span><i class="far fa-calendar-alt"></i> <span th:text="${news.publishDate}">Ngày đăng</span></span>
+                    <span><i class="far fa-user"></i> <span th:text="${news.author}">Tác giả</span></span>
+                    <span><i class="far fa-eye"></i> <span th:text="${news.views}">0</span> lượt xem</span>
+                </div>
+
+                <div class="article-featured-img">
+                    <img th:src="@{${news.imageUrl}}" src="https://via.placeholder.com/800x400" alt="Ảnh bài viết">
+                </div>
+
+                <div class="article-body" th:utext="${news.content}">
+                    <p>Mô tả nội dung bài viết sẽ hiển thị tại đây...</p>
+                </div>
+
+                <div style="margin-top: 40px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <span style="font-weight: bold; font-size: 14px;">Chia sẻ:</span>
+                    <a href="#" style="color: #1877F2;"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" style="color: #1DA1F2;"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" style="color: #666;"><i class="fas fa-link fa-lg"></i></a>
+                </div>
+            </main>
+
+            <aside class="article-sidebar">
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Bài viết mới nhất</h3>
+                    
+                    <div class="related-post" th:each="recent : ${recentNews}">
+                        <img th:src="@{${recent.thumbnailUrl}}" src="https://via.placeholder.com/70" class="related-img">
+                        <div class="related-info">
+                            <h4><a th:href="@{/news/{id}(id=${recent.id})}" th:text="${recent.title}">Tiêu đề bài viết liên quan</a></h4>
+                            <span th:text="${recent.publishDate}">Ngày tháng</span>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </aside>
+        </div>
+    </div>
+
+</body>
+</html>

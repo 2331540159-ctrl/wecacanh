@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Thêm dữ liệu nhập hàng</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+:root{
+--primary:#2e7d32;
+--dark:#1b4332;
+--border:#e5e7eb;
+--gray:#6b7280;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI';
+}
+
+body{
+display:flex;
+background:#f4f6f8;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:240px;
+height:100vh;
+background:var(--dark);
+color:white;
+padding:20px;
+position:fixed;
+}
+
+.sidebar h2{
+margin-bottom:30px;
+font-size:26px;
+}
+
+.sidebar ul{
+list-style:none;
+}
+
+.sidebar li{
+margin:14px 0;
+}
+
+.sidebar a{
+color:white;
+text-decoration:none;
+display:flex;
+gap:12px;
+align-items:center;
+padding:10px;
+border-radius:6px;
+}
+
+.sidebar a:hover{
+background:rgba(255,255,255,0.15);
+}
+
+/* LOGOUT */
+
+.logout{
+margin-top:20px;
+border-top:1px solid rgba(255,255,255,0.2);
+padding-top:15px;
+}
+
+.logout a{
+color:#ffb4b4;
+}
+
+/* MAIN */
+
+.main{
+margin-left:240px;
+width:100%;
+}
+
+/* HEADER */
+
+.admin-header{
+height:70px;
+background:white;
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 30px;
+}
+
+.admin-header h1{
+font-size:28px;
+}
+
+/* BREADCRUMB */
+
+.breadcrumb{
+font-size:14px;
+color:var(--gray);
+margin-top:6px;
+}
+
+/* CONTENT */
+
+.content{
+padding:30px;
+}
+
+/* CARD */
+
+.card{
+background:white;
+border-radius:10px;
+border:1px solid var(--border);
+padding:30px;
+max-width:950px;
+}
+
+/* TITLE */
+
+.section-title{
+font-size:20px;
+font-weight:600;
+margin-bottom:5px;
+}
+
+.section-desc{
+font-size:14px;
+color:var(--gray);
+margin-bottom:25px;
+}
+
+/* FORM GRID */
+
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+/* FORM GROUP */
+
+.form-group{
+display:flex;
+flex-direction:column;
+}
+
+.form-group label{
+font-weight:600;
+margin-bottom:6px;
+}
+
+.form-group input,
+.form-group select{
+padding:10px;
+border:1px solid var(--border);
+border-radius:6px;
+}
+
+.form-group small{
+margin-top:4px;
+font-size:12px;
+color:var(--gray);
+}
+
+/* FULL WIDTH */
+
+.full{
+grid-column:1 / span 2;
+}
+
+/* BUTTON */
+
+.form-actions{
+margin-top:25px;
+display:flex;
+gap:10px;
+}
+
+.btn{
+padding:10px 16px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.btn-save{
+background:var(--primary);
+color:white;
+}
+
+.btn-reset{
+background:#f59e0b;
+color:white;
+}
+
+.btn-back{
+background:#64748b;
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h2>ADMIN</h2>
+
+<ul>
+
+<li>
+<a th:href="@{/admindashboard}">
+<i class="fas fa-chart-line"></i> Dashboard
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/products}">
+<i class="fas fa-box"></i> Quản lý sản phẩm
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/orders}">
+<i class="fas fa-shopping-cart"></i> Đơn hàng
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/users}">
+<i class="fas fa-users"></i> Khách hàng
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/vouchers}">
+<i class="fas fa-ticket"></i> Voucher
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/product-discount}">
+<i class="fas fa-tags"></i> Giảm giá sản phẩm
+</a>
+</li>
+
+<li>
+<a th:href="@{/admin/statistics}">
+<i class="fas fa-chart-bar"></i> Thống kê
+</a>
+</li>
+
+
+</ul>
+
+<div class="logout">
+<a th:href="@{/logout}">
+<i class="fas fa-right-from-bracket"></i>
+Đăng xuất
+</a>
+</div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="admin-header">
+
+<div>
+
+<h1>Thêm dữ liệu nhập hàng</h1>
+
+<div class="breadcrumb">
+Dashboard / Thống kê / Thêm dữ liệu
+</div>
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div class="card">
+
+<div class="section-title">
+<i class="fas fa-database"></i> Thông tin nhập kho
+</div>
+
+<div class="section-desc">
+Nhập thông tin lô hàng mới được nhập vào kho để hệ thống thống kê doanh thu và tồn kho.
+</div>
+
+<form th:action="@{/admin/statistics/save}" method="post">
+
+<div class="form-grid">
+
+<!-- DATE -->
+
+<div class="form-group">
+<label>Thời gian nhập</label>
+<input type="date" name="importDate" required>
+<small>Ngày sản phẩm được nhập vào kho</small>
+</div>
+
+<!-- CATEGORY -->
+
+<div class="form-group">
+<label>Loại sản phẩm</label>
+
+<select name="category" required>
+
+<option value="">-- Chọn loại sản phẩm --</option>
+
+<option>Cá cảnh</option>
+<option>Hồ cá</option>
+<option>Máy lọc nước</option>
+<option>Đèn thủy sinh</option>
+<option>Thức ăn</option>
+<option>Thuốc</option>
+<option>Cây thủy sinh</option>
+
+</select>
+
+<small>Nhóm sản phẩm của lô hàng</small>
+</div>
+
+<!-- QUANTITY -->
+
+<div class="form-group">
+<label>Số lượng nhập</label>
+
+<input type="number"
+name="importQuantity"
+placeholder="Ví dụ: 100"
+required>
+
+<small>Tổng số sản phẩm trong lô hàng</small>
+</div>
+
+<!-- IMPORT TOTAL -->
+
+<div class="form-group">
+<label>Tổng tiền nhập</label>
+
+<input type="number"
+name="importTotal"
+placeholder="Ví dụ: 5000000"
+required>
+
+<small>Tổng chi phí nhập hàng (VNĐ)</small>
+</div>
+
+<!-- NOTE -->
+
+<div class="form-group full">
+
+<label>Ghi chú</label>
+
+<input type="text"
+name="note"
+placeholder="Ví dụ: Nhập cá koi từ nhà cung cấp A">
+
+<small>Thông tin bổ sung về lô hàng</small>
+
+</div>
+
+</div>
+
+<!-- BUTTON -->
+
+<div class="form-actions">
+
+<form th:action="@{/admin/statistics/save}" th:object="${importRecord}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <input type="date" th:field="*{importDate}" required />
+    
+    <input type="text" th:field="*{categoryName}"  />
+    
+    <input type="number" th:field="*{importQuantity}" />
+    
+    <input type="number" th:field="*{totalImportPrice}" />
+    
+    <button type="submit">Lưu dữ liệu</button>
+</form>
+
+<button type="reset" class="btn btn-reset">
+<i class="fas fa-rotate"></i>
+Làm lại
+</button>
+
+<a th:href="@{/admin/statistics}" class="btn btn-back">
+<i class="fas fa-arrow-left"></i>
+Quay lại
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

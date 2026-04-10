@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{header :: head_common}"></div>
+    <title>Trang thanh toán</title>
+</head>
+<body>
+    <div th:replace="~{header :: top_header}"></div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-green: #2e7d32;
+        --dark-green: #1b4332;
+        --light-green: #4caf50;
+        --border: #e5e7eb;
+    }
+
+    .checkout-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 30px;
+        align-items: start;
+    }
+
+    /* Form & Cards */
+    .checkout-form, .cart-box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block; }
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;
+    }
+
+    /* Voucher Style */
+    .voucher-card {
+        min-width: 160px; padding: 12px; border: 1px dashed var(--primary-green);
+        background: #fff; cursor: pointer; border-radius: 8px; transition: 0.3s;
+    }
+    .voucher-card.active {
+        border: 2px solid var(--primary-green); background: #e8f5e9;
+    }
+
+    /* Payment Methods */
+    .payment-options { display: flex; gap: 15px; margin-top: 10px; }
+    .payment-item {
+        flex: 1; border: 1px solid #ddd; padding: 15px; border-radius: 8px;
+        text-align: center; cursor: pointer; transition: 0.2s;
+    }
+
+    /* Cart Sidebar */
+    .cart-box-wrapper { position: sticky; top: 20px; }
+    .product-list-mini { max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
+
+    .checkout-btn {
+        width: 100%; padding: 16px; background: var(--dark-green);
+        color: white; border: none; border-radius: 8px; font-weight: bold;
+        cursor: pointer; font-size: 16px;
+    }
+
+    @media (max-width: 992px) {
+        .checkout-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="checkout-container">
+    <form th:action="@{/checkout/process}" method="post">
+        <div class="checkout-grid">
+            
+            <div class="checkout-form" th:object="${user}">
+                <h2 style="margin-bottom: 25px; color: var(--dark-green);">
+                    <i class="fas fa-map-marker-alt"></i> Thông tin nhận hàng
+                </h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Họ tên người nhận</label>
+                        <input type="text" th:value="*{name}" name="receiverName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" th:value="*{phone}" name="phone" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ chi tiết</label>
+                    <input type="text" th:value="${user.addresses != null && !user.addresses.isEmpty() ? user.addresses[0].address : ''}" name="address" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú đơn hàng</label>
+                    <textarea name="note" style="height: 80px; resize: none;"></textarea>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fas fa-ticket-alt"></i> Voucher khả dụng</h3>
+                    <div class="voucher-list" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px;">
+                        <div th:each="promo : ${promotions}" class="voucher-card" 
+                             th:onclick="|handleVoucherClick(this, '${promo.title}', ${promo.discount_percent})|">
+                            <div style="font-weight: 800; color: var(--primary-green);">[[${promo.title}]]</div>
+                            <div style="font-size: 12px; color: #666;">Giảm [[${promo.discount_percent}]]%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 10px;">
+                    <label style="font-weight: bold;">Phương thức thanh toán</label>
+                    <div class="payment-options">
+                        <div class="payment-item" id="btnCOD" onclick="selectPayment('COD')">
+                            <i class="fas fa-truck"></i><br><span>COD</span>
+                        </div>
+                        <div class="payment-item" id="btnBANK" onclick="selectPayment('BANK')">
+                            <i class="fas fa-university"></i><br><span>Chuyển khoản</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="paymentMethod" id="paymentMethod" value="COD">
+
+                    <div id="bankBox" style="display:none; margin-top: 20px; text-align: center;">
+                        <img id="qrImg" src="" style="width: 200px; border-radius: 8px;">
+                        <p style="font-size: 13px; margin-top:10px;">Nội dung: <b id="qrMemoDisplay"></b></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-box-wrapper">
+                <div class="cart-box">
+                    <h2 style="font-size: 18px; margin-bottom: 20px;">Đơn hàng của bạn</h2>
+                    
+                    <div class="product-list-mini">
+                        <div th:each="item : ${cartItems}" style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <img th:src="${item.product.productImages != null && !item.product.productImages.isEmpty()} ? @{'/images/' + ${item.product.productImages[0].image_url}} : @{/images/default.jpg}" 
+                                 style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">
+                            <div style="flex: 1; padding: 0 10px;">
+                                <div th:text="${item.product.name}" style="font-size: 13px; font-weight: 600;"></div>
+                                <div style="font-size: 12px; color: #888;">x[[${item.quantity}]]</div>
+                            </div>
+                            <div th:text="${#numbers.formatDecimal(item.product.price * item.quantity, 0, 'COMMA', 0, 'POINT') + ' ₫'}" style="font-size: 13px; font-weight: 600;"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fafafa; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                            <span>Tạm tính:</span> <span th:text="${#numbers.formatDecimal(totalCartPrice, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #ee4d2d;">
+                            <span>Giảm giá:</span> <span id="discountValue">- 0 ₫</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                            <span>Tổng cộng:</span>
+                            <span id="finalTotalDisplay" style="color: #ee4d2d;" th:text="${#numbers.formatDecimal(totalCartPrice + 30000, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="checkout-btn" style="margin-top: 20px;">XÁC NHẬN ĐẶT HÀNG</button>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="appliedVoucher" name="voucherCode">
+        <input type="hidden" id="discountAmount" name="discountAmount" value="0">
+    </form>
+</div>
+
+<script th:inline="javascript">
+    const originalSubtotal = /*[[${totalCartPrice}]]*/ 0;
+    const shippingFee = 30000;
+    const userId = /*[[${user?.id}]]*/ 0;
+    const formatter = new Intl.NumberFormat('vi-VN');
+
+    function handleVoucherClick(element, code, percent) {
+        document.querySelectorAll('.voucher-card').forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+        
+        let discount = (originalSubtotal * percent) / 100;
+        document.getElementById("discountValue").innerText = "- " + formatter.format(discount) + " ₫";
+        document.getElementById("finalTotalDisplay").innerText = formatter.format(originalSubtotal + shippingFee - discount) + " ₫";
+        document.getElementById("appliedVoucher").value = code;
+        document.getElementById("discountAmount").value = discount;
+        
+        if(document.getElementById("paymentMethod").value === "BANK") updateQRCode();
+    }
+
+    function selectPayment(method) {
+        document.getElementById("paymentMethod").value = method;
+        document.querySelectorAll('.payment-item').forEach(i => i.style.borderColor = "#ddd");
+        document.getElementById("btn" + method).style.borderColor = "var(--primary-green)";
+        
+        const bankBox = document.getElementById("bankBox");
+        if(method === "BANK") {
+            bankBox.style.display = "block";
+            updateQRCode();
+        } else {
+            bankBox.style.display = "none";
+        }
+    }
+
+    function updateQRCode() {
+        const discount = parseInt(document.getElementById("discountAmount").value);
+        const total = originalSubtotal + shippingFee - discount;
+        const memo = "DH" + userId + "TT";
+        document.getElementById("qrMemoDisplay").innerText = memo;
+        document.getElementById("qrImg").src = `https://img.vietqr.io/image/MB-123456789-compact.png?amount=${total}&addInfo=${memo}`;
+    }
+
+    // Khởi tạo mặc định
+    window.onload = () => selectPayment('COD');
+</script>

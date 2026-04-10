@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Ký</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+}
+
+/* LEFT PANEL */
+.left-panel{
+    flex:6;
+    background-color:#9cbaba;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.left-panel h1{
+    font-size:3rem;
+    margin-bottom:1.5rem;
+}
+
+.left-panel .subtitle{
+    font-size:1.2rem;
+    margin-bottom:4rem;
+}
+
+/* RIGHT PANEL */
+.right-panel{
+    flex:4;
+    background-color:#e4f7e1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* CARD */
+.register-card{
+    background:white;
+    width:85%;
+    max-width:450px;
+    padding:3rem;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    text-align:center;
+}
+
+.brand-name{
+    color:#388e3c;
+    font-size:2.2rem;
+    font-weight:bold;
+    margin-bottom:0.5rem;
+}
+
+.register-title{
+    color:#4caf50;
+    font-size:1.1rem;
+    margin-bottom:2.5rem;
+}
+
+.input-group{
+    margin-bottom:1rem;
+}
+
+.input-group input{
+    width:100%;
+    padding:16px 20px;
+    border:none;
+    border-radius:10px;
+    background:#f0f7f0;
+    font-size:1rem;
+    outline:none;
+}
+
+/* BUTTON */
+.btn{
+    width:100%;
+    padding:16px;
+    border-radius:10px;
+    font-size:1.1rem;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-register{
+    background:#4caf50;
+    color:white;
+    border:none;
+}
+
+.btn-register:hover{
+    background:#45a049;
+}
+
+.login-link{
+    margin-top:1.5rem;
+    font-size:0.9rem;
+}
+
+.login-link a{
+    color:#4caf50;
+    text-decoration:none;
+}
+
+.login-link a:hover{
+    text-decoration:underline;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    body{
+        flex-direction:column;
+    }
+
+    .left-panel{
+        height:40vh;
+    }
+
+    .right-panel{
+        height:60vh;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="left-panel">
+<h1>NEXTGEN GUPPIES</h1>
+<p class="subtitle">Nơi cung cấp phụ kiện cá cảnh chất lượng cao</p>
+<p>(ảnh của trang web)</p>
+</div>
+
+<div class="right-panel">
+
+<div class="register-card">
+
+<h2 class="brand-name">NEXTGEN GUPPIES</h2>
+<p class="register-title">Register</p>
+
+<form th:action="@{/register}" method="post">
+
+<div class="input-group">
+<input type="text" name="name" placeholder="Name" required>
+</div>
+
+<div class="input-group">
+<input type="email" name="email" placeholder="Email" required>
+</div>
+
+<div class="input-group">
+<input type="password" name="password" placeholder="Password" required>
+</div>
+
+<button type="submit" class="btn btn-register">Register</button>
+
+<div class="login-link">
+Đã có tài khoản? <a th:href="@{/login}">Login</a>
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>
